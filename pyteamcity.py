@@ -433,11 +433,35 @@ class TeamCity:
         """
 
     @GET('agents')
-    def get_agents(self):
+    def _get_all_agents(self):
         """
         Gets all agents in the TeamCity server pointed to by this instance of
         the Client.
         """
+
+    @GET('agents/?locator={locator}')
+    def _get_all_agents_locator(self, locator=''):
+        """
+        Gets all agents in the TeamCity server pointed to by this instance of
+        the Client.
+        """
+
+    def get_agents(self, id='', name='', start=None, count=None,
+                   **kwargs):
+        _get_agents_locator = {}
+        if id:
+            _get_agents_locator['id'] = id
+        if name:
+            _get_agents_locator['name'] = name
+        if start:
+            _get_agents_locator['start'] = start
+        if count:
+            _get_agents_locator['count'] = count
+        locator = self._get_locator(**get_agents_locator)
+        if locator:
+            return self._get_all_agents_locator(locator, **kwargs)
+        else:
+            return self._get_all_agents(**kwargs)
 
     @GET('agents/id:{agent_id}')
     def get_agent_by_agent_id(self, agent_id):
