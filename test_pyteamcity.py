@@ -76,6 +76,16 @@ def test_get_agent_by_agent_id():
     assert req.url == expected_url
 
 
+def test_get_agent_by_agent_name():
+    expected_url = 'http://TEAMCITY_HOST:4567/httpAuth/app/rest/agents/name:test'
+    url = tc.get_agent_by_agent_name('test', return_type='url')
+    assert url == expected_url
+
+    req = tc.get_agent_by_agent_name('test', return_type='request')
+    assert req.method == 'GET'
+    assert req.url == expected_url
+
+
 def test_get_projects():
     expected_url = 'http://TEAMCITY_HOST:4567/httpAuth/app/rest/projects'
     url = tc.get_projects(return_type='url')
@@ -408,6 +418,70 @@ def test_get_builds_by_build_type_and_start_and_count():
     assert req.method == 'GET'
     assert req.url == expected_url
 
+def test_get_builds_by_since_build():
+    expected_url = ('http://TEAMCITY_HOST:4567/httpAuth/app/rest/'
+                    'builds/'
+                    '?locator=sinceBuild:sinceTestBuild'
+                    '&start=0&count=100')
+    url = tc.get_builds(
+        since_build='sinceTestBuild',
+        return_type='url')
+    assert url == expected_url
+
+    req = tc.get_builds(
+        since_build='sinceTestBuild',
+        return_type='request')
+    assert req.method == 'GET'
+    assert req.url == expected_url
+
+def test_get_builds_by_until_build():
+    expected_url = ('http://TEAMCITY_HOST:4567/httpAuth/app/rest/'
+                    'builds/'
+                    '?locator=untilBuild:untilTestBuild'
+                    '&start=0&count=100')
+    url = tc.get_builds(
+        until_build='untilTestBuild',
+        return_type='url')
+    assert url == expected_url
+
+    req = tc.get_builds(
+        until_build='untilTestBuild',
+        return_type='request')
+    assert req.method == 'GET'
+    assert req.url == expected_url
+
+def test_get_builds_by_since_date():
+    expected_url = ('http://TEAMCITY_HOST:4567/httpAuth/app/rest/'
+                    'builds/'
+                    '?locator=sinceDate:sinceTestDate'
+                    '&start=0&count=100')
+    url = tc.get_builds(
+        since_date='sinceTestDate',
+        return_type='url')
+    assert url == expected_url
+
+    req = tc.get_builds(
+        since_date='sinceTestDate',
+        return_type='request')
+    assert req.method == 'GET'
+    assert req.url == expected_url
+
+def test_get_builds_by_until_date():
+    expected_url = ('http://TEAMCITY_HOST:4567/httpAuth/app/rest/'
+                    'builds/'
+                    '?locator=untilDate:untilTestDate'
+                    '&start=0&count=100')
+    url = tc.get_builds(
+        until_date='untilTestDate',
+        return_type='url')
+    assert url == expected_url
+
+    req = tc.get_builds(
+        until_date='untilTestDate',
+        return_type='request')
+    assert req.method == 'GET'
+    assert req.url == expected_url
+
 
 def test_get_build_by_build_id_arg():
     expected_url = ('http://TEAMCITY_HOST:4567/httpAuth/app/rest'
@@ -568,5 +642,19 @@ def test_get_build_type_kwarg():
 
     req = tc.get_build_type(
         build_type_id='foo_build', return_type='request')
+    assert req.method == 'GET'
+    assert req.url == expected_url
+
+
+def test_get_test():
+    expected_url = ('http://TEAMCITY_HOST:4567/httpAuth/app/rest/'
+                    'testOccurrences?locator=test:12345')
+
+    url = tc.get_test(
+        test_locator='12345', return_type='url')
+    assert url == expected_url
+
+    req = tc.get_test(
+        test_locator='12345', return_type='request')
     assert req.method == 'GET'
     assert req.url == expected_url

@@ -115,21 +115,23 @@ class TeamCity:
     error_handler = None
 
     def __init__(self, username=None, password=None, server=None, port=None,
-                 session=None):
+                 session=None, protocol=None):
         self.username = username or os.getenv('TEAMCITY_USER')
         self.password = password or os.getenv('TEAMCITY_PASSWORD')
         self.host = server or os.getenv('TEAMCITY_HOST')
         self.port = port or int(os.getenv('TEAMCITY_PORT', 0)) or 80
-        self.base_base_url = "http://%s:%d" % (self.host, self.port)
-        self.guest_auth_base_url = "http://%s:%d/guestAuth" % (
-            self.host, self.port)
+        self.protocol = protocol or os.getenv('TEAMCITY_PROTOCOL', 'http')
+        self.base_base_url = "%s://%s:%d" % (
+            self.protocol, self.host, self.port)
+        self.guest_auth_base_url = "%s://%s:%d/guestAuth" % (
+            self.protocol, self.host, self.port)
         if self.username and self.password:
-            self.base_url = "http://%s:%d/httpAuth/app/rest" % (
-                self.host, self.port)
+            self.base_url = "%s://%s:%d/httpAuth/app/rest" % (
+                self.protocol, self.host, self.port)
             self.auth = (self.username, self.password)
         else:
-            self.base_url = "http://%s:%d/guestAuth/app/rest" % (
-                self.host, self.port)
+            self.base_url = "%s://%s:%d/guestAuth/app/rest" % (
+                self.protocol, self.host, self.port)
             self.auth = None
         self.session = session or requests.Session()
         self._agent_cache = {}
@@ -187,6 +189,7 @@ class TeamCity:
                    build_type_id='', branch='', status='', running='',
                    tags=None,
                    user=None, project='',
+                   since_build=None, until_build=None, since_date=None, until_date=None,
                    start=0, count=100, **kwargs):
         _get_locator_kwargs = {}
         if branch:
@@ -203,6 +206,15 @@ class TeamCity:
             _get_locator_kwargs['user'] = user
         if project:
             _get_locator_kwargs['project'] = project
+        if since_build:
+            _get_locator_kwargs['since_build'] = since_build
+        if until_build:
+            _get_locator_kwargs['until_build'] = until_build
+        if since_date:
+            _get_locator_kwargs['since_date'] = since_date
+        if until_date:
+            _get_locator_kwargs['until_date'] = until_date
+
 
         locator = self._get_locator(**_get_locator_kwargs)
 
@@ -447,6 +459,14 @@ class TeamCity:
         :param agent_id: the agent ID to get, in format [0-9]+
         """
 
+    @GET('agents/name:{agent_name}')
+    def get_agent_by_agent_name(self, agent_name):
+        """
+        Gets details for an agent with name `agent_name`.
+
+        :param agent_name: the agent name to get
+        """
+
     def get_agent_statistics(self):
         counters = collections.Counter()
         counters['by_build_type'] = collections.Counter()
@@ -568,4 +588,12 @@ class TeamCity:
         Gets user details for a given username.
 
         :param username: the username to get details for.
+        """
+
+    @GET('testOccurrences?locator=test:{test_locator}')
+    def get_test(self, test_locator):
+        """
+        Gets individual test history
+
+        :param test_locator: test id
         """
